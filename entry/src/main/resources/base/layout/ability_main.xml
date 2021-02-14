@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<DirectionalLayout
+<DependentLayout
     xmlns:ohos="http://schemas.huawei.com/res/ohos"
+    ohos:orientation="horizontal"
     ohos:height="match_parent"
     ohos:width="match_parent"
-    ohos:orientation="vertical">
+    >
 
-    <com.example.demo00.view.MySquareView
-        ohos:width="200vp"
-        ohos:height="300vp"
-        ohos:background_element="#ff00ff"
-        />
+    <com.example.demo00.view.MySegmentView
+        ohos:center_in_parent="true"
+        ohos:background_element="#aabbcc"
+        ohos:width="260vp"
+        ohos:height="40vp"/>
 
-</DirectionalLayout>
+
+<!--    <com.example.demo00.view.MySquareView-->
+<!--        ohos:width="50vp"-->
+<!--        ohos:height="100vp"-->
+<!--        ohos:background_element="#00ffff"-->
+<!--        />-->
+
+</DependentLayout>
