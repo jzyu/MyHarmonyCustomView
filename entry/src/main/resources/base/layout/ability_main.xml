@@ -10,30 +10,19 @@
     <com.example.demo00.view.MySegmentView
         ohos:width="200vp"
         ohos:height="60vp"
-        ohos:text="Tom|Jerry"
+        ohos:text="你好|鸿蒙|OS"
         />
-<!--  fixme 同屏幕只能有一个 match_content 可见  -->
+<!--  fixme 同屏幕只能有一个 match_content 可见-->
 <!--    <com.example.demo00.view.MySegmentView-->
 <!--        ohos:width="match_content"-->
 <!--        ohos:height="match_content"-->
 <!--        ohos:text="Tom|Jerry"-->
 <!--        />-->
 
-    <Component
-        ohos:height="100vp"
-        ohos:width="100vp"
-        ohos:background_element="#ff0000"
-        />
-
-    <Component
-        ohos:height="100vp"
-        ohos:width="100vp"
-        ohos:background_element="#00ff00"
-        />
-
     <com.example.demo00.view.MySegmentView
         ohos:height="match_content"
         ohos:width="match_content"
+        ohos:top_margin="50vp"
         ohos:text="Hello|world|Harmony"
         />
 

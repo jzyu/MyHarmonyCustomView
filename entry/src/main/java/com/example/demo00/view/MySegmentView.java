@@ -43,11 +43,11 @@ public class MySegmentView extends Component {
     /**
      * 外边框的width
      */
-    private int mBoundWidth = 4;
+    private int mBoundWidth;
     /**
      * 内边框的width
      */
-    private int mSeparatorWidth = mBoundWidth / 2;
+    private int mSeparatorWidth;
 
     private int mSingleChildWidth;
     private int mSingleChildHeight;
@@ -109,26 +109,13 @@ public class MySegmentView extends Component {
         if (attrSet.getAttr("text").isPresent()) {
             mTexts = attrSet.getAttr("text").get().getStringValue().split("\\|");
         }
-    }
 
-    private void init(AttrSet attrSet) {
-        initAttr(attrSet);
+        mBoundWidth = AttrHelper.vp2px(2, getContext());
+        mSeparatorWidth = mBoundWidth / 2;
 
-        initProperties();
+        mHorizonGap = AttrHelper.vp2px(12, getContext());
+        mVerticalGap = AttrHelper.vp2px(6, getContext());
 
-        addDrawTask(mDrawTask);
-
-        setEstimateSizeListener(new EstimateSizeListener() {
-            @Override
-            public boolean onEstimateSize(int widthMeasureSpec, int heightMeasureSpec) {
-                estimateSize = doEstimateSize(widthMeasureSpec, heightMeasureSpec);
-                Log.debug(TAG, "onEstimateSize size=%s", estimateSize);
-                return false;
-            }
-        });
-    }
-
-    private void initProperties() {
         mBackgroundDrawable = new ShapeElement();
         mBackgroundDrawable.setCornerRadius(AttrHelper.vp2px(6, getContext()));
         mBackgroundDrawable.setStroke(2, RgbColor.fromArgbInt(getSelectedBGColor().getValue()));
@@ -139,12 +126,28 @@ public class MySegmentView extends Component {
         mSelectedDrawable.setRgbColor(RgbColor.fromArgbInt(getSelectedBGColor().getValue()));
 
         mTextSize = AttrHelper.fp2px(16, getContext());
+        mCornerRadius = AttrHelper.vp2px(5, getContext());
 
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setTextSize(mTextSize);
         mPaint.setFakeBoldText(mTextBold);
         mCachedFM = mPaint.getFontMetrics();
+    }
+
+    private void init(AttrSet attrSet) {
+        initAttr(attrSet);
+
+        setEstimateSizeListener(new EstimateSizeListener() {
+            @Override
+            public boolean onEstimateSize(int widthMeasureSpec, int heightMeasureSpec) {
+                estimateSize = doEstimateSize(widthMeasureSpec, heightMeasureSpec);
+                Log.debug(TAG, "onEstimateSize size=%s", estimateSize);
+                return false;
+            }
+        });
+
+        addDrawTask(mDrawTask);
     }
 
     private Size doEstimateSize(int widthMeasureSpec, int heightMeasureSpec) {
@@ -370,7 +373,14 @@ public class MySegmentView extends Component {
                     }
                 }
 
-                mSelectedDrawable.setCornerRadiiArray(new float[]{topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius});
+                float[] radii = new float[]{
+                        topLeftRadius, topLeftRadius,
+                        topRightRadius, topRightRadius,
+                        bottomRightRadius, bottomRightRadius,
+                        bottomLeftRadius, bottomLeftRadius
+                };
+                Log.info(TAG,"doDraw radius, tl=%d, tr=%d, bl=%d, br=%d", topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius);
+                mSelectedDrawable.setCornerRadiiArray(radii);
                 mSelectedDrawable.setBounds(mCacheBounds[i]);
                 mSelectedDrawable.drawToCanvas(canvas);
 
