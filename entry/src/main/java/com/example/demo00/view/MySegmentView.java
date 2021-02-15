@@ -172,8 +172,6 @@ public class MySegmentView extends Component {
                 }
             }
 
-            Log.debug(TAG,"doEstimateSize 000 mDirection=%s", mDirection);
-
             switch (widthMode) {
                 case EstimateSpec.NOT_EXCEED:
                     if (mDirection == Direction.HORIZONTAL) {
@@ -245,7 +243,6 @@ public class MySegmentView extends Component {
             }
 
             for (int i = 0; i < mTexts.length; i++) {
-                Log.debug(TAG,"doEstimateSize i=%d,  mCacheBounds.length=%d", i, mCacheBounds.length);
                 if (mCacheBounds[i] == null) {
                     mCacheBounds[i] = new Rect();
                 }
