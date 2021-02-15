@@ -15,6 +15,7 @@ import ohos.agp.utils.Point;
 import ohos.agp.utils.Rect;
 import ohos.app.Context;
 import ohos.media.image.common.Size;
+import ohos.multimodalinput.event.TouchEvent;
 
 import java.util.Optional;
 
@@ -133,10 +134,23 @@ public class MySegmentView extends Component {
         mPaint.setTextSize(mTextSize);
         mPaint.setFakeBoldText(mTextBold);
         mCachedFM = mPaint.getFontMetrics();
+
+        // fixme: read touchSlop from framework
+        int touchSlop = AttrHelper.vp2px(4, getContext());
+        mTouchSlop = touchSlop * touchSlop;
+        inTapRegion = false;
     }
 
     private void init(AttrSet attrSet) {
         initAttr(attrSet);
+
+        setTouchEventListener(new TouchEventListener() {
+            @Override
+            public boolean onTouchEvent(Component component, TouchEvent touchEvent) {
+                MySegmentView.this.onTouchEvent(touchEvent);
+                return true;
+            }
+        });
 
         setEstimateSizeListener(new EstimateSizeListener() {
             @Override
@@ -148,6 +162,16 @@ public class MySegmentView extends Component {
         });
 
         addDrawTask(mDrawTask);
+    }
+
+    public void setSelectedIndex(int index) {
+        mCurrentIndex = index;
+
+        if(mOnSegmentControlClickListener != null) {
+            mOnSegmentControlClickListener.onSegmentControlClick(index);
+        }
+
+        invalidate();
     }
 
     private Size doEstimateSize(int widthMeasureSpec, int heightMeasureSpec) {
@@ -295,6 +319,54 @@ public class MySegmentView extends Component {
         return new Size(width, height);
     }
 
+    public boolean onTouchEvent(TouchEvent event) {
+        Log.info(TAG, "onTouchEvent action=%d, pt=%s, %s, %s",
+                event.getAction(),
+                event.getPointerPosition(0),
+                event.getPointerScreenPosition(0),
+                getComponentPosition()
+        );
+
+        switch (event.getAction()) {
+            case TouchEvent.PRIMARY_POINT_DOWN:
+                inTapRegion = true;
+
+                mStartX = event.getPointerPosition(0).getX();
+                mStartY = event.getPointerPosition(0).getY();
+                break;
+
+            case TouchEvent.POINT_MOVE:
+                mCurrentX = event.getPointerPosition(0).getX();
+                mCurrentY = event.getPointerPosition(0).getY();
+
+                int dx = (int) (mCurrentX - mStartX);
+                int dy = (int) (mCurrentY - mStartY);
+
+                int distance = dx * dx + dy * dy;
+
+                if (distance > mTouchSlop) {
+                    inTapRegion = false;
+                }
+                break;
+
+            case TouchEvent.PRIMARY_POINT_UP:
+                if (inTapRegion) {
+                    int index = 0;
+                    if (mDirection == Direction.HORIZONTAL) {
+                        index = (int) (mStartX / mSingleChildWidth);
+                    } else {
+                        index = (int) (mStartY / mSingleChildHeight);
+                    }
+
+                    setSelectedIndex(index);
+                }
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
     private Color getSelectedTextColor() {
         return DEFAULT_NORMAL_COLOR;
     }
@@ -400,5 +472,22 @@ public class MySegmentView extends Component {
     public void setText(String... texts) {
         mTexts = texts;
         invalidate();
+    }
+
+    // =========================================================
+    // OnSegmentControlClickListener
+    // =========================================================
+    private OnSegmentControlClickListener mOnSegmentControlClickListener;
+
+    public void setOnSegmentControlClickListener(OnSegmentControlClickListener listener) {
+        mOnSegmentControlClickListener = listener;
+    }
+
+    public OnSegmentControlClickListener getOnSegmentControlClicklistener() {
+        return mOnSegmentControlClickListener;
+    }
+
+    public interface OnSegmentControlClickListener {
+        void onSegmentControlClick(int index);
     }
 }
