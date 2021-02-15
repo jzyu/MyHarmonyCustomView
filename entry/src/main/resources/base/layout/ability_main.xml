@@ -1,22 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<DependentLayout
+<DirectionalLayout
     xmlns:ohos="http://schemas.huawei.com/res/ohos"
-    ohos:orientation="horizontal"
     ohos:height="match_parent"
     ohos:width="match_parent"
+    ohos:orientation="vertical"
+    ohos:padding="20vp"
     >
 
     <com.example.demo00.view.MySegmentView
-        ohos:center_in_parent="true"
-        ohos:background_element="#aabbcc"
-        ohos:width="260vp"
-        ohos:height="40vp"/>
-
-
-<!--    <com.example.demo00.view.MySquareView-->
-<!--        ohos:width="50vp"-->
-<!--        ohos:height="100vp"-->
-<!--        ohos:background_element="#00ffff"-->
+        ohos:width="200vp"
+        ohos:height="60vp"
+        ohos:text="Tom|Jerry"
+        />
+<!--  fixme 同屏幕只能有一个 match_content 可见  -->
+<!--    <com.example.demo00.view.MySegmentView-->
+<!--        ohos:width="match_content"-->
+<!--        ohos:height="match_content"-->
+<!--        ohos:text="Tom|Jerry"-->
 <!--        />-->
 
-</DependentLayout>
+    <Component
+        ohos:height="100vp"
+        ohos:width="100vp"
+        ohos:background_element="#ff0000"
+        />
+
+    <Component
+        ohos:height="100vp"
+        ohos:width="100vp"
+        ohos:background_element="#00ff00"
+        />
+
+    <com.example.demo00.view.MySegmentView
+        ohos:height="match_content"
+        ohos:width="match_content"
+        ohos:text="Hello|world|Harmony"
+        />
+
+</DirectionalLayout>

@@ -3,6 +3,7 @@ package com.example.demo00.view;
 import com.example.demo00.utils.Log;
 import com.example.demo00.utils.Misc;
 import ohos.agp.colors.RgbColor;
+import ohos.agp.components.Attr;
 import ohos.agp.components.AttrHelper;
 import ohos.agp.components.AttrSet;
 import ohos.agp.components.Component;
@@ -15,10 +16,12 @@ import ohos.agp.utils.Rect;
 import ohos.app.Context;
 import ohos.media.image.common.Size;
 
+import java.util.Optional;
+
 public class MySegmentView extends Component {
     public static final String TAG = MySegmentView.class.getSimpleName();
 
-    private String[] mTexts = {"Hello", "Harmony", "OS"};
+    private String[] mTexts = new String[]{};
     private Rect[] mCacheBounds;
     private Rect[] mTextBounds;
 
@@ -73,9 +76,18 @@ public class MySegmentView extends Component {
 
     private Direction mDirection = Direction.HORIZONTAL;
 
+    private Size estimateSize;
+    private boolean hasSetSizeBeforeDraw;
+
+
     private DrawTask mDrawTask = new DrawTask() {
         @Override
         public void onDraw(Component component, Canvas canvas) {
+            if (!hasSetSizeBeforeDraw) {
+                setComponentSize(estimateSize.width, estimateSize.height);
+                hasSetSizeBeforeDraw = true;
+            }
+
             doDraw(component, canvas);
         }
     };
@@ -90,29 +102,41 @@ public class MySegmentView extends Component {
 
     public MySegmentView(Context context, AttrSet attrSet, String styleName) {
         super(context, attrSet, styleName);
-        init();
+        init(attrSet);
     }
 
-    private void init() {
-        initAttr();
+    private void initAttr(AttrSet attrSet) {
+        if (attrSet.getAttr("text").isPresent()) {
+            mTexts = attrSet.getAttr("text").get().getStringValue().split("\\|");
+        }
+    }
+
+    private void init(AttrSet attrSet) {
+        initAttr(attrSet);
+
+        initProperties();
 
         addDrawTask(mDrawTask);
 
         setEstimateSizeListener(new EstimateSizeListener() {
             @Override
             public boolean onEstimateSize(int widthMeasureSpec, int heightMeasureSpec) {
-                doEstimateSize(widthMeasureSpec, heightMeasureSpec);
+                estimateSize = doEstimateSize(widthMeasureSpec, heightMeasureSpec);
+                Log.debug(TAG, "onEstimateSize size=%s", estimateSize);
                 return false;
             }
         });
     }
 
-    private void initAttr() {
+    private void initProperties() {
         mBackgroundDrawable = new ShapeElement();
-        mBackgroundDrawable.setCornerRadius(2);
-        mBackgroundDrawable.setStroke(2, new RgbColor(getSelectedBGColor().getValue()));
+        mBackgroundDrawable.setCornerRadius(AttrHelper.vp2px(6, getContext()));
+        mBackgroundDrawable.setStroke(2, RgbColor.fromArgbInt(getSelectedBGColor().getValue()));
+        mBackgroundDrawable.setRgbColor(RgbColor.fromArgbInt(getNormalBGColor().getValue()));
+        setBackground(mBackgroundDrawable);
+
         mSelectedDrawable = new ShapeElement();
-        mSelectedDrawable.setRgbColor(new RgbColor(getSelectedBGColor().getValue()));
+        mSelectedDrawable.setRgbColor(RgbColor.fromArgbInt(getSelectedBGColor().getValue()));
 
         mTextSize = AttrHelper.fp2px(16, getContext());
 
@@ -173,7 +197,7 @@ public class MySegmentView extends Component {
             }
 
             switch (widthMode) {
-                case EstimateSpec.NOT_EXCEED:
+                case EstimateSpec.UNCONSTRAINT:
                     if (mDirection == Direction.HORIZONTAL) {
                         if (widthSize <= mSingleChildWidth * mTexts.length) {
                             mSingleChildWidth = widthSize / mTexts.length;
@@ -188,7 +212,7 @@ public class MySegmentView extends Component {
                 case EstimateSpec.PRECISE:
                     width = widthSize;
                     break;
-                case EstimateSpec.UNCONSTRAINT:
+                case EstimateSpec.NOT_EXCEED:
                 default:
                     if (mDirection == Direction.HORIZONTAL) {
                         width = mSingleChildWidth * mTexts.length;
